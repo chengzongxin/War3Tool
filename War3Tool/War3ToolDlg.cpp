@@ -255,11 +255,13 @@ void CWar3ToolDlg::OnBnClickedAddMoney()
 
 void CWar3ToolDlg::OnBnClickedAddSoul()
 {
-	// TODO: 在此添加控件通知处理程序代码
-
-	HANDLE hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);  // 进程快照句柄
-	PROCESSENTRY32 process = { sizeof(PROCESSENTRY32) };	// 存放进程快照的结构体
-
+	// TODO: 加灵魂
+	// "Storm.dll"+0002BC58
+	// 44
+	// 7F8
+	// 214
+	// 1C
+	// 5C
 
 	DWORD pid;
 	HWND hWnd = ::FindWindow(NULL, _T("Warcraft III")); // 获取窗口句柄
@@ -268,25 +270,70 @@ void CWar3ToolDlg::OnBnClickedAddSoul()
 		::MessageBox(NULL, _T("Warcraft III游戏未打开"), _T("错误"), MB_OK);
 		return;
 	}
-	//  遍历进程
-	while (Process32Next(hProcessSnap, &process)) {
-		// 找到 QQMusic.exe 进程
-		GetWindowThreadProcessId(hWnd, &pid); // 通过窗口句柄拿到进程ID
+	GetWindowThreadProcessId(hWnd, &pid); // 通过窗口句柄拿到进程ID
+	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, pid); // 通过进程ID拿到进程句柄
 
-		CString s_szExeFile = process.szExeFile; // char* 转 string
-		if (s_szExeFile == "War3.exe") {
-			HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, process.th32ProcessID); // 进程句柄
-			HMODULE hModule = GetProcessModuleHandle(process.th32ProcessID, _T("Storm.dll"));
-			DWORD dwTemp = 0;
-			BOOL bRead = ReadProcessMemory(hProcess, (LPCVOID)(hModule + 0x0002BC58), &dwTemp, sizeof(DWORD), &pid);
-			
-			//std::count << "QQMusic.dll的模块基地址：" << GetProcessModuleHandle(process.th32ProcessID, "QQMusic.dll") << std::endl;
+	HMODULE hModule = GetProcessModuleHandle(pid, _T("Storm.dll"));
+	WCHAR path[100] = { 0 };
+	GetModuleFileNameEx(hProcess, hModule, path, sizeof(path));//添加 #include "Psapi.h" ;获得某个正在运行的EXE或者DLL的全路径
+	MODULEINFO mi;
+	GetModuleInformation(hProcess, hModule, &mi, sizeof(MODULEINFO)); // 获取b.dll信息
+	// mi.lpBaseOfDll就是b.dll的加载起始地址
+	DWORD dwTemp = 0;
+	BOOL bRead = false;
 
-			MODULEINFO mi;
-			::K32GetModuleInformation(hProcess, hModule, &mi, sizeof(MODULEINFO)); // 获取b.dll信息
-
-		}
+	bRead = ReadProcessMemory(hProcess, (LPCVOID)((int)mi.lpBaseOfDll + 0x0002BC58), &dwTemp, sizeof(DWORD), &pid);
+	dwTemp += 0x44;
+	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
+	if (NULL == hWnd)
+	{
+		::MessageBox(NULL, _T("读取杀敌错误2"), _T("错误"), MB_OK);
+		CloseHandle(hProcess);
+		return;
 	}
+
+	dwTemp += 0x7F8;
+	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
+	if (NULL == bRead)
+	{
+		::MessageBox(NULL, _T("读取杀敌错误3"), _T("错误"), MB_OK);
+		CloseHandle(hProcess);
+		return;
+	}
+
+	dwTemp += 0x214;
+	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
+	if (NULL == bRead)
+	{
+		::MessageBox(NULL, _T("读取杀敌错误4"), _T("错误"), MB_OK);
+		CloseHandle(hProcess);
+		return;
+	}
+
+	dwTemp += 0x1C;
+	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
+	if (NULL == bRead)
+	{
+		::MessageBox(NULL, _T("读取杀敌错误5"), _T("错误"), MB_OK);
+		CloseHandle(hProcess);
+		return;
+	}
+
+	// 最后一个内存地址，作为写入数据
+	dwTemp += 0x5C;
+	// 写入数据
+	int n_money = 88000000;
+	SIZE_T numberOfBytesWritten = 0;
+	//36F4B9D0
+	BOOL bSuc = WriteProcessMemory(hProcess, (LPVOID)dwTemp, &n_money, sizeof(n_money), &numberOfBytesWritten);
+	if (!bSuc)
+	{
+		::MessageBox(NULL, _T("修改杀敌错误"), _T("错误"), MB_OK);
+		return;
+	}
+
+
+	CloseHandle(hProcess);
 }
 
 
