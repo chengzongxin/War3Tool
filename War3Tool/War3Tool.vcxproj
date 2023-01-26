@@ -189,6 +189,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="War3Tool.h" />
     <ClInclude Include="War3ToolDlg.h" />
+    <ClInclude Include="WriteOffsetMemory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -199,6 +200,7 @@
     </ClCompile>
     <ClCompile Include="War3Tool.cpp" />
     <ClCompile Include="War3ToolDlg.cpp" />
+    <ClCompile Include="WriteOffsetMemory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="War3Tool.rc" />

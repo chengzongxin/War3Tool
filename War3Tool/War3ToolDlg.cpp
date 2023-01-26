@@ -18,6 +18,8 @@
 #pragma comment(lib, "Dbghelp.lib")
 #include <stdio.h>
 
+#include "WriteOffsetMemory.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -495,6 +497,12 @@ void CWar3ToolDlg::OnTimer(UINT_PTR nIDEvent)
 		m_time.SetWindowText(show_time);
 		break;
 	}
+
+	DWORD arr[5] = { 1,2,3,4,5 };
+	WriteOffsetMemory::write(arr, 5);
+
+	//WriteOffsetMemory w1 = WriteOffsetMemory();
+	//w1.write(arr, 5);
 
 	//3.销毁定时器
 	//在程序退出前需要销毁定时器，添加下面代码
