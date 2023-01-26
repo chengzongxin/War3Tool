@@ -40,6 +40,6 @@ public:
 //	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	CEdit m_time;
-	afx_msg void OnEnChangeEdit1();
 	afx_msg void OnBnClickedXHeroAddMoney();
+	CString m_inputData;
 };

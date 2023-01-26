@@ -10,7 +10,7 @@ using namespace std;
 // 14
 // 3c
 // 78
-BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWORD arr[])
+BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWORD arr[], DWORD writeData)
 {
 	cout << "ddddd" << endl;
 	DWORD pid;
@@ -54,9 +54,9 @@ BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWO
 		{
 			// 最后一个内存地址，作为写入数据
 			// 写入数据
-			int n_money = 88000000;
+			int n_Data = writeData;
 			SIZE_T numberOfBytesWritten = 0;
-			BOOL bSuc = WriteProcessMemory(hProcess, (LPVOID)dwTemp, &n_money, sizeof(n_money), &numberOfBytesWritten);
+			BOOL bSuc = WriteProcessMemory(hProcess, (LPVOID)dwTemp, &n_Data, sizeof(n_Data), &numberOfBytesWritten);
 			if (!bSuc)
 			{
 				::MessageBox(NULL, _T("修改杀敌错误"), _T("错误"), MB_OK);

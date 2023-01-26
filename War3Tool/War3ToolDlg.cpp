@@ -64,6 +64,7 @@ END_MESSAGE_MAP()
 
 CWar3ToolDlg::CWar3ToolDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_WAR3TOOL_DIALOG, pParent)
+	, m_inputData(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -72,6 +73,7 @@ void CWar3ToolDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDIT1, m_time);
+	DDX_Text(pDX, IDC_EDIT2, m_inputData);
 }
 
 BEGIN_MESSAGE_MAP(CWar3ToolDlg, CDialogEx)
@@ -83,7 +85,6 @@ BEGIN_MESSAGE_MAP(CWar3ToolDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON2, &CWar3ToolDlg::OnBnClickedAddSoul)
 //	ON_WM_TIMER()
 ON_WM_TIMER()
-ON_EN_CHANGE(IDC_EDIT1, &CWar3ToolDlg::OnEnChangeEdit1)
 ON_BN_CLICKED(IDC_BUTTON4, &CWar3ToolDlg::OnBnClickedXHeroAddMoney)
 END_MESSAGE_MAP()
 
@@ -366,31 +367,6 @@ HMODULE CWar3ToolDlg::GetProcessModuleHandle(DWORD pid, CONST TCHAR* moduleName)
 	return 0;
 }
 
-BOOL CWar3ToolDlg::ModuleAddress(DWORD pid, wchar_t* ModuleName, QWORD& StartAddress, QWORD& EndAddress)
-{
-	MODULEENTRY32 me32;//模块结构信息//#include <tlhelp32.h>
-	me32.dwSize = sizeof(MODULEENTRY32);
-	HANDLE handle = ::CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
-	if (INVALID_HANDLE_VALUE == handle)
-	{
-		return FALSE;
-	}
-	BOOL ret = ::Module32First(handle, &me32);
-	while (ret)
-	{
-		if (wcscmp(me32.szModule, ModuleName) == 0)
-		{
-			StartAddress = (QWORD)me32.modBaseAddr;
-			EndAddress = StartAddress + me32.modBaseSize;
-			CloseHandle(handle);
-			return TRUE;
-		}
-		ret = ::Module32Next(handle, &me32);
-	}
-	CloseHandle(handle);
-	return FALSE;
-}
-
 void CWar3ToolDlg::OnBnClickedAddKillCount()
 {
 	//"Storm.dll" + 0002BC58
@@ -505,18 +481,6 @@ void CWar3ToolDlg::OnTimer(UINT_PTR nIDEvent)
 
 }
 
-
-void CWar3ToolDlg::OnEnChangeEdit1()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	// TODO:  在此添加控件通知处理程序代码
-}
-
-
 void CWar3ToolDlg::OnBnClickedXHeroAddMoney()
 {
 	// "Game.dll"+0x00BE40A4
@@ -525,5 +489,6 @@ void CWar3ToolDlg::OnBnClickedXHeroAddMoney()
 	// 3c
 	// 78
 	DWORD arr[4] = { 0x4, 0x14, 0x3c, 0x78 };
-	WriteOffsetMemory::Write(_T("Game.dll"), 0x00BE40A4, arr);
+	DWORD data = GetDlgItemInt(IDC_EDIT2, NULL, 1);
+	WriteOffsetMemory::Write(_T("Game.dll"), 0x00BE40A4, arr, data);
 }
