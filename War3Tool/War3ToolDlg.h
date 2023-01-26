@@ -37,4 +37,8 @@ public:
 	afx_msg void OnBnClickedAddSoul();
 	afx_msg HMODULE GetProcessModuleHandle(DWORD pid, CONST TCHAR* moduleName);
 	afx_msg BOOL CWar3ToolDlg::ModuleAddress(DWORD pid, wchar_t* ModuleName, QWORD& StartAddress, QWORD& EndAddress);
+//	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	CEdit m_time;
+	afx_msg void OnEnChangeEdit1();
 };

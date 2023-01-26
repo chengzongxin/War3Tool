@@ -69,6 +69,7 @@ CWar3ToolDlg::CWar3ToolDlg(CWnd* pParent /*=nullptr*/)
 void CWar3ToolDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_EDIT1, m_time);
 }
 
 BEGIN_MESSAGE_MAP(CWar3ToolDlg, CDialogEx)
@@ -78,6 +79,9 @@ BEGIN_MESSAGE_MAP(CWar3ToolDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON1, &CWar3ToolDlg::OnBnClickedAddMoney)
 	ON_BN_CLICKED(IDC_BUTTON3, &CWar3ToolDlg::OnBnClickedAddKillCount)
 	ON_BN_CLICKED(IDC_BUTTON2, &CWar3ToolDlg::OnBnClickedAddSoul)
+//	ON_WM_TIMER()
+ON_WM_TIMER()
+ON_EN_CHANGE(IDC_EDIT1, &CWar3ToolDlg::OnEnChangeEdit1)
 END_MESSAGE_MAP()
 
 
@@ -113,6 +117,7 @@ BOOL CWar3ToolDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	SetTimer(1, 100, NULL);   //编号为1,时间周期为100ms,第三个参数回调函数，设为NULL即可
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -466,25 +471,44 @@ void CWar3ToolDlg::OnBnClickedAddKillCount()
 
 	CloseHandle(hProcess);
 }
-//
-//HMODULE CWar3ToolDlg::GetProcessModuleHandle(DWORD pid, const TCHAR* moduleName)
-//{	// 根据 PID 、模块名（需要写后缀，如：".dll"），获取模块入口地址。
-//	MODULEENTRY32 moduleEntry;
-//	HANDLE handle = NULL;
-//	handle = ::CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid); //  获取进程快照中包含在th32ProcessID中指定的进程的所有的模块。
-//	if (!handle) {
-//		CloseHandle(handle);
-//		return NULL;
-//	}
-//	ZeroMemory(&moduleEntry, sizeof(MODULEENTRY32));
-//	moduleEntry.dwSize = sizeof(MODULEENTRY32);
-//	if (!Module32First(handle, &moduleEntry)) {
-//		CloseHandle(handle);
-//		return NULL;
-//	}
-//	do {
-//		if (_tcscmp(moduleEntry.szModule, moduleName) == 0) { return moduleEntry.hModule; }
-//	} while (Module32Next(handle, &moduleEntry));
-//	CloseHandle(handle);
-//	return 0;
-//}
+
+void CWar3ToolDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	CDialogEx::OnTimer(nIDEvent);
+
+	switch (nIDEvent)
+	{
+	case 1:  //编号一的定时器
+		SYSTEMTIME st;
+		CString strDate, strTime;
+		//获取系统时间
+		GetLocalTime(&st);
+		strDate.Format(_T("%4d-%02d-%02d"), st.wYear, st.wMonth, st.wDay);
+		strTime.Format(_T("%2d:%02d:%02d"), st.wHour, st.wMinute, st.wSecond);
+		CString show_time = strDate + " " + strTime;
+		//设置字体
+		CFont m_editFont;
+		m_editFont.CreatePointFont(120, _T("宋体"), NULL);
+		m_time.SetFont(&m_editFont, TRUE);   //m_times 为显示控件的变量名
+		m_time.SetWindowText(show_time);
+		break;
+	}
+
+	//3.销毁定时器
+	//在程序退出前需要销毁定时器，添加下面代码
+	//KillTimer(1); //1为定时器的编号
+
+}
+
+
+void CWar3ToolDlg::OnEnChangeEdit1()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+}
