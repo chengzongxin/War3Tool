@@ -5,8 +5,14 @@
 #include <tlhelp32.h>
 using namespace std;
 
-BOOL WriteOffsetMemory::write(DWORD arr[], DWORD size)
+// "Game.dll"+0x00BE40A4
+// 4
+// 14
+// 3c
+// 78
+BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWORD arr[])
 {
+	cout << "ddddd" << endl;
 	DWORD pid;
 	HWND hWnd = ::FindWindow(NULL, _T("Warcraft III")); // 获取窗口句柄
 	if (NULL == hWnd)
@@ -17,7 +23,7 @@ BOOL WriteOffsetMemory::write(DWORD arr[], DWORD size)
 	GetWindowThreadProcessId(hWnd, &pid); // 通过窗口句柄拿到进程ID
 	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, pid); // 通过进程ID拿到进程句柄
 
-	HMODULE hModule = GetProcessModuleHandle(pid, _T("Storm.dll"));
+	HMODULE hModule = GetProcessModuleHandle(pid, moduleName);
 	WCHAR path[100] = { 0 };
 	GetModuleFileNameEx(hProcess, hModule, path, sizeof(path));//添加 #include "Psapi.h" ;获得某个正在运行的EXE或者DLL的全路径
 	MODULEINFO mi;
@@ -26,14 +32,15 @@ BOOL WriteOffsetMemory::write(DWORD arr[], DWORD size)
 	DWORD dwTemp = 0;
 	BOOL bRead = false;
 
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)((int)mi.lpBaseOfDll + 0x0002BC58), &dwTemp, sizeof(DWORD), &pid);
-
-	for (size_t i = 0; i < size; i++)
+	bRead = ReadProcessMemory(hProcess, (LPCVOID)((int)mi.lpBaseOfDll + baseOffset), &dwTemp, sizeof(DWORD), &pid);
+	//DWORD length = sizeof(arr) / sizeof(arr[0]);
+	DWORD length = sizeof(arr);
+	for (size_t i = 0; i < length; i++)
 	{
 		DWORD addr = arr[i];
 		dwTemp += addr;
 
-		if (i != size - 1)
+		if (i != length - 1)
 		{
 			bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
 			if (NULL == bRead)
@@ -49,7 +56,6 @@ BOOL WriteOffsetMemory::write(DWORD arr[], DWORD size)
 			// 写入数据
 			int n_money = 88000000;
 			SIZE_T numberOfBytesWritten = 0;
-			//36F4B9D0
 			BOOL bSuc = WriteProcessMemory(hProcess, (LPVOID)dwTemp, &n_money, sizeof(n_money), &numberOfBytesWritten);
 			if (!bSuc)
 			{

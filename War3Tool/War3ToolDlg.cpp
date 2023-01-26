@@ -84,6 +84,7 @@ BEGIN_MESSAGE_MAP(CWar3ToolDlg, CDialogEx)
 //	ON_WM_TIMER()
 ON_WM_TIMER()
 ON_EN_CHANGE(IDC_EDIT1, &CWar3ToolDlg::OnEnChangeEdit1)
+ON_BN_CLICKED(IDC_BUTTON4, &CWar3ToolDlg::OnBnClickedXHeroAddMoney)
 END_MESSAGE_MAP()
 
 
@@ -498,12 +499,6 @@ void CWar3ToolDlg::OnTimer(UINT_PTR nIDEvent)
 		break;
 	}
 
-	DWORD arr[5] = { 1,2,3,4,5 };
-	WriteOffsetMemory::write(arr, 5);
-
-	//WriteOffsetMemory w1 = WriteOffsetMemory();
-	//w1.write(arr, 5);
-
 	//3.销毁定时器
 	//在程序退出前需要销毁定时器，添加下面代码
 	//KillTimer(1); //1为定时器的编号
@@ -519,4 +514,16 @@ void CWar3ToolDlg::OnEnChangeEdit1()
 	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
 
 	// TODO:  在此添加控件通知处理程序代码
+}
+
+
+void CWar3ToolDlg::OnBnClickedXHeroAddMoney()
+{
+	// "Game.dll"+0x00BE40A4
+	// 4
+	// 14
+	// 3c
+	// 78
+	DWORD arr[4] = { 0x4, 0x14, 0x3c, 0x78 };
+	WriteOffsetMemory::Write(_T("Game.dll"), 0x00BE40A4, arr);
 }
