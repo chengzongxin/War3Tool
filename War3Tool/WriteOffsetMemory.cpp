@@ -44,7 +44,9 @@ BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWO
 			bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
 			if (NULL == bRead)
 			{
-				::MessageBox(NULL, _T(""), _T("´íÎó"), MB_OK);
+				CString str;
+				str.Format(_T("¶ÁÈ¡ÄÚ´æ´íÎó£º%d£¬Æ«ÒÆ£º%d"), dwTemp,i);
+				::MessageBox(NULL, str, _T("´íÎó"), MB_OK);
 				CloseHandle(hProcess);
 				return false;
 			}
@@ -55,7 +57,9 @@ BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWO
 			bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwCurrent, sizeof(DWORD), &pid);
 			if (NULL == bRead)
 			{
-				::MessageBox(NULL, _T(""), _T("´íÎó"), MB_OK);
+				CString str;
+				str.Format(_T("Ð´ÈëÄÚ´æ´íÎó£º%d"), dwTemp);
+				::MessageBox(NULL, str, _T("´íÎó"), MB_OK);
 				CloseHandle(hProcess);
 				return false;
 			}

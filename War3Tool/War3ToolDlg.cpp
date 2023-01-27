@@ -124,7 +124,7 @@ BOOL CWar3ToolDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-	SetTimer(1, 100, NULL);   //编号为1,时间周期为100ms,第三个参数回调函数，设为NULL即可
+	SetTimer(1, 10000, NULL);   //编号为1,时间周期为100ms,第三个参数回调函数，设为NULL即可
 	m_noPauseTimes = TRUE;
 	((CButton*)GetDlgItem(IDC_CHECK1))->SetCheck(1);
 
