@@ -10,7 +10,7 @@ using namespace std;
 // 14
 // 3c
 // 78
-BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWORD arr[], DWORD writeData)
+BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWORD arr[], DWORD length, DWORD writeData)
 {
 	cout << "ddddd" << endl;
 	DWORD pid;
@@ -33,8 +33,7 @@ BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWO
 	BOOL bRead = false;
 
 	bRead = ReadProcessMemory(hProcess, (LPCVOID)((int)mi.lpBaseOfDll + baseOffset), &dwTemp, sizeof(DWORD), &pid);
-	//DWORD length = sizeof(arr) / sizeof(arr[0]);
-	DWORD length = sizeof(arr);
+
 	for (size_t i = 0; i < length; i++)
 	{
 		DWORD addr = arr[i];

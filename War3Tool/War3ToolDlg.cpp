@@ -32,12 +32,12 @@ class CAboutDlg : public CDialogEx
 public:
 	CAboutDlg();
 
-// 对话框数据
+	// 对话框数据
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_ABOUTBOX };
 #endif
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 // 实现
@@ -83,9 +83,9 @@ BEGIN_MESSAGE_MAP(CWar3ToolDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON1, &CWar3ToolDlg::OnBnClickedAddMoney)
 	ON_BN_CLICKED(IDC_BUTTON3, &CWar3ToolDlg::OnBnClickedAddKillCount)
 	ON_BN_CLICKED(IDC_BUTTON2, &CWar3ToolDlg::OnBnClickedAddSoul)
-//	ON_WM_TIMER()
-ON_WM_TIMER()
-ON_BN_CLICKED(IDC_BUTTON4, &CWar3ToolDlg::OnBnClickedXHeroAddMoney)
+	//	ON_WM_TIMER()
+	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_BUTTON4, &CWar3ToolDlg::OnBnClickedXHeroAddMoney)
 END_MESSAGE_MAP()
 
 
@@ -180,87 +180,17 @@ HCURSOR CWar3ToolDlg::OnQueryDragIcon()
 void CWar3ToolDlg::OnBnClickedAddMoney()
 {
 	// TODO: 加钱
-	// "Storm.dll"+0002BC58
+	// "Storm.dll"+0x0002BC58
 	// 44
 	// 7F8
 	// 1E4
 	// 1C
 	// AC
-
-	DWORD pid;
-	HWND hWnd = ::FindWindow(NULL, _T("Warcraft III")); // 获取窗口句柄
-	if (NULL == hWnd)
-	{
-		::MessageBox(NULL, _T("Warcraft III游戏未打开"), _T("错误"), MB_OK);
-		return;
-	}
-	GetWindowThreadProcessId(hWnd, &pid); // 通过窗口句柄拿到进程ID
-	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, pid); // 通过进程ID拿到进程句柄
-
-	HMODULE hModule = GetProcessModuleHandle(pid, _T("Storm.dll"));
-	WCHAR path[100] = { 0 };
-	GetModuleFileNameEx(hProcess, hModule, path, sizeof(path));//添加 #include "Psapi.h" ;获得某个正在运行的EXE或者DLL的全路径
-	MODULEINFO mi;
-	GetModuleInformation(hProcess, hModule, &mi, sizeof(MODULEINFO)); // 获取b.dll信息
-	// mi.lpBaseOfDll就是b.dll的加载起始地址
-	DWORD dwTemp = 0;
-	BOOL bRead = false;
-
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)((int)mi.lpBaseOfDll + 0x0002BC58), &dwTemp, sizeof(DWORD), &pid);
-	dwTemp += 0x44;
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
-	if (NULL == hWnd)
-	{
-		::MessageBox(NULL, _T("读取杀敌错误2"), _T("错误"), MB_OK);
-		CloseHandle(hProcess);
-		return;
-	}
-
-	dwTemp += 0x7F8;
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
-	if (NULL == bRead)
-	{
-		::MessageBox(NULL, _T("读取杀敌错误3"), _T("错误"), MB_OK);
-		CloseHandle(hProcess);
-		return;
-	}
-
-	dwTemp += 0x1E4;
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
-	if (NULL == bRead)
-	{
-		::MessageBox(NULL, _T("读取杀敌错误4"), _T("错误"), MB_OK);
-		CloseHandle(hProcess);
-		return;
-	}
-
-	dwTemp += 0x1C;
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
-	if (NULL == bRead)
-	{
-		::MessageBox(NULL, _T("读取杀敌错误5"), _T("错误"), MB_OK);
-		CloseHandle(hProcess);
-		return;
-	}
-
-	// 最后一个内存地址，作为写入数据
-	dwTemp += 0xAC;
-	// 写入数据
-	int n_money = 88000000;
-	SIZE_T numberOfBytesWritten = 0;
-	//36F4B9D0
-	BOOL bSuc = WriteProcessMemory(hProcess, (LPVOID)dwTemp, &n_money, sizeof(n_money), &numberOfBytesWritten);
-	if (!bSuc)
-	{
-		::MessageBox(NULL, _T("修改杀敌错误"), _T("错误"), MB_OK);
-		return;
-	}
-
-
-	CloseHandle(hProcess);
+	DWORD arr[5] = { 0x44, 0x7F8, 0x1E4, 0x1C, 0xAC };
+	DWORD data = GetDlgItemInt(IDC_EDIT2, NULL, 1);
+	DWORD length = sizeof(arr) / sizeof(arr[0]);
+	WriteOffsetMemory::Write(_T("Storm.dll"), 0x0002BC58, arr, length, data);
 }
-
-
 
 void CWar3ToolDlg::OnBnClickedAddSoul()
 {
@@ -271,184 +201,25 @@ void CWar3ToolDlg::OnBnClickedAddSoul()
 	// 214
 	// 1C
 	// 5C
-
-	DWORD pid;
-	HWND hWnd = ::FindWindow(NULL, _T("Warcraft III")); // 获取窗口句柄
-	if (NULL == hWnd)
-	{
-		::MessageBox(NULL, _T("Warcraft III游戏未打开"), _T("错误"), MB_OK);
-		return;
-	}
-	GetWindowThreadProcessId(hWnd, &pid); // 通过窗口句柄拿到进程ID
-	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, pid); // 通过进程ID拿到进程句柄
-
-	HMODULE hModule = GetProcessModuleHandle(pid, _T("Storm.dll"));
-	WCHAR path[100] = { 0 };
-	GetModuleFileNameEx(hProcess, hModule, path, sizeof(path));//添加 #include "Psapi.h" ;获得某个正在运行的EXE或者DLL的全路径
-	MODULEINFO mi;
-	GetModuleInformation(hProcess, hModule, &mi, sizeof(MODULEINFO)); // 获取b.dll信息
-	// mi.lpBaseOfDll就是b.dll的加载起始地址
-	DWORD dwTemp = 0;
-	BOOL bRead = false;
-
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)((int)mi.lpBaseOfDll + 0x0002BC58), &dwTemp, sizeof(DWORD), &pid);
-	dwTemp += 0x44;
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
-	if (NULL == hWnd)
-	{
-		::MessageBox(NULL, _T("读取杀敌错误2"), _T("错误"), MB_OK);
-		CloseHandle(hProcess);
-		return;
-	}
-
-	dwTemp += 0x7F8;
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
-	if (NULL == bRead)
-	{
-		::MessageBox(NULL, _T("读取杀敌错误3"), _T("错误"), MB_OK);
-		CloseHandle(hProcess);
-		return;
-	}
-
-	dwTemp += 0x214;
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
-	if (NULL == bRead)
-	{
-		::MessageBox(NULL, _T("读取杀敌错误4"), _T("错误"), MB_OK);
-		CloseHandle(hProcess);
-		return;
-	}
-
-	dwTemp += 0x1C;
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
-	if (NULL == bRead)
-	{
-		::MessageBox(NULL, _T("读取杀敌错误5"), _T("错误"), MB_OK);
-		CloseHandle(hProcess);
-		return;
-	}
-
-	// 最后一个内存地址，作为写入数据
-	dwTemp += 0x5C;
-	// 写入数据
-	int n_money = 88000000;
-	SIZE_T numberOfBytesWritten = 0;
-	//36F4B9D0
-	BOOL bSuc = WriteProcessMemory(hProcess, (LPVOID)dwTemp, &n_money, sizeof(n_money), &numberOfBytesWritten);
-	if (!bSuc)
-	{
-		::MessageBox(NULL, _T("修改杀敌错误"), _T("错误"), MB_OK);
-		return;
-	}
-
-
-	CloseHandle(hProcess);
-}
-
-
-HMODULE CWar3ToolDlg::GetProcessModuleHandle(DWORD pid, CONST TCHAR* moduleName) {	// 根据 PID 、模块名（需要写后缀，如：".dll"），获取模块入口地址。
-	MODULEENTRY32 moduleEntry;
-	HANDLE handle = NULL;
-	handle = ::CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid); //  获取进程快照中包含在th32ProcessID中指定的进程的所有的模块。
-	if (!handle) {
-		CloseHandle(handle);
-		return NULL;
-	}
-	ZeroMemory(&moduleEntry, sizeof(MODULEENTRY32));
-	moduleEntry.dwSize = sizeof(MODULEENTRY32);
-	if (!Module32First(handle, &moduleEntry)) {
-		CloseHandle(handle);
-		return NULL;
-	}
-	do {
-		if (_tcscmp(moduleEntry.szModule, moduleName) == 0) { return (HMODULE)moduleEntry.hModule; }
-	} while (Module32Next(handle, &moduleEntry));
-	CloseHandle(handle);
-	return 0;
+	DWORD arr[5] = { 0x44, 0x7F8, 0x214, 0x1C, 0x5C };
+	DWORD data = GetDlgItemInt(IDC_EDIT2, NULL, 1);
+	DWORD length = sizeof(arr) / sizeof(arr[0]);
+	WriteOffsetMemory::Write(_T("Storm.dll"), 0x0002BC58, arr, length, data);
 }
 
 void CWar3ToolDlg::OnBnClickedAddKillCount()
 {
+	// TODO: 加杀敌数
 	//"Storm.dll" + 0002BC58
 	//44
 	//158
 	//24
 	//138
 	//514
-	
-	//HMODULE hModule = GetModuleHandle(_T("Storm.dll")); // 获取b.dll句柄
-
-	DWORD pid;
-	HWND hWnd = ::FindWindow(NULL, _T("Warcraft III")); // 获取窗口句柄
-	if (NULL == hWnd)
-	{
-		::MessageBox(NULL, _T("Warcraft III游戏未打开"), _T("错误"), MB_OK);
-		return;
-	}
-	GetWindowThreadProcessId(hWnd, &pid); // 通过窗口句柄拿到进程ID
-	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, pid); // 通过进程ID拿到进程句柄
-
-	HMODULE hModule = GetProcessModuleHandle(pid, _T("Storm.dll"));
-	WCHAR path[100] = { 0 };
-	GetModuleFileNameEx(hProcess, hModule, path, sizeof(path));//添加 #include "Psapi.h" ;获得某个正在运行的EXE或者DLL的全路径
-	MODULEINFO mi;
-	GetModuleInformation(hProcess, hModule, &mi, sizeof(MODULEINFO)); // 获取b.dll信息
-	// mi.lpBaseOfDll就是b.dll的加载起始地址
-	DWORD dwTemp = 0;
-	BOOL bRead = false;
-
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)((int)mi.lpBaseOfDll + 0x0002BC58), &dwTemp, sizeof(DWORD), &pid);
-	dwTemp += 0x44;
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
-	if (NULL == hWnd)
-	{
-		::MessageBox(NULL, _T("读取杀敌错误2"), _T("错误"), MB_OK);
-		CloseHandle(hProcess);
-		return;
-	}
-
-	dwTemp += 0x158;
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
-	if (NULL == bRead)
-	{
-		::MessageBox(NULL, _T("读取杀敌错误3"), _T("错误"), MB_OK);
-		CloseHandle(hProcess);
-		return;
-	}
-
-	dwTemp += 0x24;
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
-	if (NULL == bRead)
-	{
-		::MessageBox(NULL, _T("读取杀敌错误4"), _T("错误"), MB_OK);
-		CloseHandle(hProcess);
-		return;
-	}
-
-	dwTemp += 0x138;
-	bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwTemp, sizeof(DWORD), &pid);
-	if (NULL == bRead)
-	{
-		::MessageBox(NULL, _T("读取杀敌错误5"), _T("错误"), MB_OK);
-		CloseHandle(hProcess);
-		return;
-	}
-
-	// 最后一个内存地址，作为写入数据
-	dwTemp += 0x514;
-	// 写入数据
-	int n_money = 88000000;
-	SIZE_T numberOfBytesWritten = 0;
-	//36F4B9D0
-	BOOL bSuc = WriteProcessMemory(hProcess, (LPVOID)dwTemp, &n_money, sizeof(n_money), &numberOfBytesWritten);
-	if (!bSuc)
-	{
-		::MessageBox(NULL, _T("修改杀敌错误"), _T("错误"), MB_OK);
-		return;
-	}
-
-
-	CloseHandle(hProcess);
+	DWORD arr[5] = { 0x44, 0x158, 0x24, 0x138, 0x514 };
+	DWORD data = GetDlgItemInt(IDC_EDIT2, NULL, 1);
+	DWORD length = sizeof(arr) / sizeof(arr[0]);
+	WriteOffsetMemory::Write(_T("Storm.dll"), 0x0002BC58, arr, length, data);
 }
 
 void CWar3ToolDlg::OnTimer(UINT_PTR nIDEvent)
@@ -478,7 +249,6 @@ void CWar3ToolDlg::OnTimer(UINT_PTR nIDEvent)
 	//3.销毁定时器
 	//在程序退出前需要销毁定时器，添加下面代码
 	//KillTimer(1); //1为定时器的编号
-
 }
 
 void CWar3ToolDlg::OnBnClickedXHeroAddMoney()
@@ -490,5 +260,6 @@ void CWar3ToolDlg::OnBnClickedXHeroAddMoney()
 	// 78
 	DWORD arr[4] = { 0x4, 0x14, 0x3c, 0x78 };
 	DWORD data = GetDlgItemInt(IDC_EDIT2, NULL, 1);
-	WriteOffsetMemory::Write(_T("Game.dll"), 0x00BE40A4, arr, data);
+	DWORD length = sizeof(arr) / sizeof(arr[0]);
+	WriteOffsetMemory::Write(_T("Game.dll"), 0x00BE40A4, arr, length, data);
 }
