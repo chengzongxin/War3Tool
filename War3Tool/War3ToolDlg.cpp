@@ -128,6 +128,9 @@ BOOL CWar3ToolDlg::OnInitDialog()
 	m_noPauseTimes = TRUE;
 	((CButton*)GetDlgItem(IDC_CHECK1))->SetCheck(1);
 
+	// 进程提权，否则获取模块地址为CCCCCCC
+	WriteOffsetMemory::UpPrivilege();
+
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -250,10 +253,10 @@ void CWar3ToolDlg::OnTimer(UINT_PTR nIDEvent)
 		m_time.SetWindowText(show_time);
 
 		// 1秒加一次钱
-		OnBnClickedAddMoney();
-		OnBnClickedAddSoul();
-		OnBnClickedAddKillCount();
-		OnBnClickedPauseLimitless();
+		//OnBnClickedAddMoney();
+		//OnBnClickedAddSoul();
+		//OnBnClickedAddKillCount();
+		//OnBnClickedPauseLimitless();
 
 		break;
 	}

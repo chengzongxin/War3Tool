@@ -12,7 +12,6 @@ using namespace std;
 // 78
 BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWORD arr[], DWORD length, DWORD writeData, BOOL force)
 {
-	cout << "ddddd" << endl;
 	DWORD pid;
 	HWND hWnd = ::FindWindow(NULL, _T("Warcraft III")); // 获取窗口句柄
 	if (NULL == hWnd)
@@ -33,7 +32,9 @@ BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWO
 	BOOL bRead = false;
 
 	bRead = ReadProcessMemory(hProcess, (LPCVOID)((int)mi.lpBaseOfDll + baseOffset), &dwTemp, sizeof(DWORD), &pid);
-
+	CString str;
+	str.Format(_T("基址：%x + 偏移：%x,  读取内存：%x"),mi.lpBaseOfDll,baseOffset, dwTemp);
+	::MessageBox(NULL, str, _T("错误"), MB_OK);
 	for (size_t i = 0; i < length; i++)
 	{
 		DWORD addr = arr[i];
@@ -109,4 +110,45 @@ HMODULE WriteOffsetMemory::GetProcessModuleHandle(DWORD pid, CONST TCHAR* module
 	} while (Module32Next(handle, &moduleEntry));
 	CloseHandle(handle);
 	return 0;
+}
+
+BOOL WriteOffsetMemory::UpPrivilege()
+{
+	HANDLE token_handle;
+	//打开访问令牌
+	if (!OpenProcessToken(GetCurrentProcess(),       //要修改权限的进程句柄
+		TOKEN_ALL_ACCESS,          //要对令牌进行何种操作
+		&token_handle              //访问令牌
+	))
+	{
+		printf("openProcessToken error");
+	}
+
+	LUID luid;
+	if (!LookupPrivilegeValue(NULL,                 //查看的系统，本地为NULL
+		SE_DEBUG_NAME,        //要查看的特权名称
+		&luid                 //用来接收标识符
+	))
+	{
+		printf("lookupPrivilegevalue error");
+	}
+
+	TOKEN_PRIVILEGES tkp;
+	tkp.PrivilegeCount = 1;
+	tkp.Privileges[0].Luid = luid;
+	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+	//调整访问令牌权限
+	if (!AdjustTokenPrivileges(token_handle,    //令牌句柄
+		FALSE,           //是否禁用权限
+		&tkp,            //新的特权的权限信息
+		sizeof(tkp),     //特权信息大小
+		NULL,            //用来接收特权信息当前状态的buffer
+		NULL             //缓冲区大小
+	))
+	{
+		printf("adjust error");
+	}
+
+	printf("sucessful");
+	return 1;
 }
