@@ -65,6 +65,7 @@ END_MESSAGE_MAP()
 CWar3ToolDlg::CWar3ToolDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_WAR3TOOL_DIALOG, pParent)
 	, m_inputData(_T(""))
+	, m_noPauseTimes(FALSE)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -74,6 +75,7 @@ void CWar3ToolDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDIT1, m_time);
 	DDX_Text(pDX, IDC_EDIT2, m_inputData);
+	DDX_Check(pDX, IDC_CHECK1, m_noPauseTimes);
 }
 
 BEGIN_MESSAGE_MAP(CWar3ToolDlg, CDialogEx)
@@ -86,6 +88,7 @@ BEGIN_MESSAGE_MAP(CWar3ToolDlg, CDialogEx)
 	//	ON_WM_TIMER()
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON4, &CWar3ToolDlg::OnBnClickedXHeroAddMoney)
+	ON_BN_CLICKED(IDC_CHECK1, &CWar3ToolDlg::OnBnClickedPauseLimitless)
 END_MESSAGE_MAP()
 
 
@@ -122,6 +125,8 @@ BOOL CWar3ToolDlg::OnInitDialog()
 
 	// TODO: 在此添加额外的初始化代码
 	SetTimer(1, 100, NULL);   //编号为1,时间周期为100ms,第三个参数回调函数，设为NULL即可
+	m_noPauseTimes = TRUE;
+	((CButton*)GetDlgItem(IDC_CHECK1))->SetCheck(1);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -243,6 +248,13 @@ void CWar3ToolDlg::OnTimer(UINT_PTR nIDEvent)
 		m_editFont.CreatePointFont(120, _T("宋体"), NULL);
 		m_time.SetFont(&m_editFont, TRUE);   //m_times 为显示控件的变量名
 		m_time.SetWindowText(show_time);
+
+		// 1秒加一次钱
+		OnBnClickedAddMoney();
+		OnBnClickedAddSoul();
+		OnBnClickedAddKillCount();
+		OnBnClickedPauseLimitless();
+
 		break;
 	}
 
@@ -262,4 +274,24 @@ void CWar3ToolDlg::OnBnClickedXHeroAddMoney()
 	DWORD data = GetDlgItemInt(IDC_EDIT2, NULL, 1);
 	DWORD length = sizeof(arr) / sizeof(arr[0]);
 	WriteOffsetMemory::Write(_T("Game.dll"), 0x00BE40A4, arr, length, data);
+}
+
+
+void CWar3ToolDlg::OnBnClickedPauseLimitless()
+{
+	// TODO: 暂停不限制次数
+	UpdateData(TRUE);
+	if (m_noPauseTimes)
+	{
+		//"Storm.dll" + 0x0002BC58
+		//	0x1C4
+		//	0x0
+		//	0x0
+		//	0x1C
+		//	0x40
+		DWORD arr[5] = { 0x1C4, 0x0, 0x0, 0x1C, 0x40 };
+		DWORD data = 0;
+		DWORD length = sizeof(arr) / sizeof(arr[0]);
+		WriteOffsetMemory::Write(_T("Storm.dll"), 0x0002BC58, arr, length, data, TRUE);
+	}
 }

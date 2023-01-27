@@ -10,7 +10,7 @@ using namespace std;
 // 14
 // 3c
 // 78
-BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWORD arr[], DWORD length, DWORD writeData)
+BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWORD arr[], DWORD length, DWORD writeData, BOOL force)
 {
 	cout << "ddddd" << endl;
 	DWORD pid;
@@ -51,6 +51,22 @@ BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWO
 		}
 		else 
 		{
+			DWORD dwCurrent = 0;
+			bRead = ReadProcessMemory(hProcess, (LPCVOID)dwTemp, &dwCurrent, sizeof(DWORD), &pid);
+			if (NULL == bRead)
+			{
+				::MessageBox(NULL, _T(""), _T("错误"), MB_OK);
+				CloseHandle(hProcess);
+				return false;
+			}
+			
+ 			if (force == false && dwCurrent >= writeData)
+			{
+				// 数值很大，不用修改
+				CloseHandle(hProcess);
+				return false;
+			}
+
 			// 最后一个内存地址，作为写入数据
 			// 写入数据
 			int n_Data = writeData;

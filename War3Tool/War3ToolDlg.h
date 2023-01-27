@@ -42,4 +42,6 @@ public:
 	CEdit m_time;
 	afx_msg void OnBnClickedXHeroAddMoney();
 	CString m_inputData;
+	afx_msg void OnBnClickedPauseLimitless();
+	BOOL m_noPauseTimes;
 };
