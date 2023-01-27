@@ -5,6 +5,12 @@
 #include <tlhelp32.h>
 using namespace std;
 
+HWND WriteOffsetMemory::GetWindow()
+{
+	HWND hWnd = ::FindWindow(NULL, _T("Warcraft III")); // 获取窗口句柄
+	return hWnd;
+}
+
 // "Game.dll"+0x00BE40A4
 // 4
 // 14
@@ -12,16 +18,15 @@ using namespace std;
 // 78
 BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWORD arr[], DWORD length, DWORD writeData, BOOL force)
 {
-	DWORD pid;
-	HWND hWnd = ::FindWindow(NULL, _T("Warcraft III")); // 获取窗口句柄
+	HWND hWnd = GetWindow();
 	if (NULL == hWnd)
 	{
 		::MessageBox(NULL, _T("Warcraft III游戏未打开"), _T("错误"), MB_OK);
 		return false;
 	}
+	DWORD pid;
 	GetWindowThreadProcessId(hWnd, &pid); // 通过窗口句柄拿到进程ID
 	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, pid); // 通过进程ID拿到进程句柄
-
 	HMODULE hModule = GetProcessModuleHandle(pid, moduleName);
 	WCHAR path[100] = { 0 };
 	GetModuleFileNameEx(hProcess, hModule, path, sizeof(path));//添加 #include "Psapi.h" ;获得某个正在运行的EXE或者DLL的全路径
@@ -32,9 +37,9 @@ BOOL WriteOffsetMemory::Write(_In_opt_ LPCWSTR moduleName, DWORD baseOffset, DWO
 	BOOL bRead = false;
 
 	bRead = ReadProcessMemory(hProcess, (LPCVOID)((int)mi.lpBaseOfDll + baseOffset), &dwTemp, sizeof(DWORD), &pid);
-	CString str;
-	str.Format(_T("基址：%x + 偏移：%x,  读取内存：%x"),mi.lpBaseOfDll,baseOffset, dwTemp);
-	::MessageBox(NULL, str, _T("错误"), MB_OK);
+	//CString str;
+	//str.Format(_T("基址：%x + 偏移：%x,  读取内存：%x"),mi.lpBaseOfDll,baseOffset, dwTemp);
+	//::MessageBox(NULL, str, _T("错误"), MB_OK);
 	for (size_t i = 0; i < length; i++)
 	{
 		DWORD addr = arr[i];

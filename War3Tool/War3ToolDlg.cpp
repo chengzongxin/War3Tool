@@ -124,7 +124,7 @@ BOOL CWar3ToolDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-	SetTimer(1, 10000, NULL);   //编号为1,时间周期为100ms,第三个参数回调函数，设为NULL即可
+	SetTimer(1, 1000, NULL);   //编号为1,时间周期为100ms,第三个参数回调函数，设为NULL即可
 	m_noPauseTimes = TRUE;
 	((CButton*)GetDlgItem(IDC_CHECK1))->SetCheck(1);
 
@@ -236,6 +236,16 @@ void CWar3ToolDlg::OnTimer(UINT_PTR nIDEvent)
 
 	CDialogEx::OnTimer(nIDEvent);
 
+	if (NULL == WriteOffsetMemory::GetWindow())
+	{
+		this->SetWindowText(_T("游戏未打开"));
+		return;
+	}
+	else
+	{
+		this->SetWindowText(_T("十殿阎罗游戏助手"));
+	}
+
 	switch (nIDEvent)
 	{
 	case 1:  //编号一的定时器
@@ -253,10 +263,10 @@ void CWar3ToolDlg::OnTimer(UINT_PTR nIDEvent)
 		m_time.SetWindowText(show_time);
 
 		// 1秒加一次钱
-		//OnBnClickedAddMoney();
-		//OnBnClickedAddSoul();
-		//OnBnClickedAddKillCount();
-		//OnBnClickedPauseLimitless();
+		OnBnClickedAddMoney();
+		OnBnClickedAddSoul();
+		OnBnClickedAddKillCount();
+		OnBnClickedPauseLimitless();
 
 		break;
 	}
