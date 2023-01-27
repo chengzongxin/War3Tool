@@ -44,4 +44,7 @@ public:
 	CString m_inputData;
 	afx_msg void OnBnClickedPauseLimitless();
 	BOOL m_noPauseTimes;
+	BOOL m_tunshi;
+	afx_msg void OnBnClickedTunshi();
+	afx_msg void OnEnChangeEdit1();
 };

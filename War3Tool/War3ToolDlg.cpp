@@ -66,6 +66,7 @@ CWar3ToolDlg::CWar3ToolDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_WAR3TOOL_DIALOG, pParent)
 	, m_inputData(_T(""))
 	, m_noPauseTimes(FALSE)
+	, m_tunshi(FALSE)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -76,6 +77,7 @@ void CWar3ToolDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT1, m_time);
 	DDX_Text(pDX, IDC_EDIT2, m_inputData);
 	DDX_Check(pDX, IDC_CHECK1, m_noPauseTimes);
+	DDX_Check(pDX, IDC_CHECK2, m_tunshi);
 }
 
 BEGIN_MESSAGE_MAP(CWar3ToolDlg, CDialogEx)
@@ -89,6 +91,8 @@ BEGIN_MESSAGE_MAP(CWar3ToolDlg, CDialogEx)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON4, &CWar3ToolDlg::OnBnClickedXHeroAddMoney)
 	ON_BN_CLICKED(IDC_CHECK1, &CWar3ToolDlg::OnBnClickedPauseLimitless)
+	ON_BN_CLICKED(IDC_CHECK2, &CWar3ToolDlg::OnBnClickedTunshi)
+	ON_EN_CHANGE(IDC_EDIT1, &CWar3ToolDlg::OnEnChangeEdit1)
 END_MESSAGE_MAP()
 
 
@@ -124,9 +128,10 @@ BOOL CWar3ToolDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-	SetTimer(1, 1000, NULL);   //编号为1,时间周期为100ms,第三个参数回调函数，设为NULL即可
+	SetTimer(1, 500, NULL);   //编号为1,时间周期为500ms,第三个参数回调函数，设为NULL即可
 	m_noPauseTimes = TRUE;
 	((CButton*)GetDlgItem(IDC_CHECK1))->SetCheck(1);
+	GetDlgItem(IDC_EDIT2)->SetWindowText(_T("1000000"));
 
 	// 进程提权，否则获取模块地址为CCCCCCC
 	WriteOffsetMemory::UpPrivilege();
@@ -194,7 +199,7 @@ void CWar3ToolDlg::OnBnClickedAddMoney()
 	// 1E4
 	// 1C
 	// AC
-	DWORD arr[5] = { 0x44, 0x7F8, 0x1E4, 0x1C, 0xAC };
+	DWORD arr[] = { 0x44, 0x7F8, 0x1E4, 0x1C, 0xAC };
 	DWORD data = GetDlgItemInt(IDC_EDIT2, NULL, 1);
 	DWORD length = sizeof(arr) / sizeof(arr[0]);
 	WriteOffsetMemory::Write(_T("Storm.dll"), 0x0002BC58, arr, length, data);
@@ -209,7 +214,7 @@ void CWar3ToolDlg::OnBnClickedAddSoul()
 	// 214
 	// 1C
 	// 5C
-	DWORD arr[5] = { 0x44, 0x7F8, 0x214, 0x1C, 0x5C };
+	DWORD arr[] = { 0x44, 0x7F8, 0x214, 0x1C, 0x5C };
 	DWORD data = GetDlgItemInt(IDC_EDIT2, NULL, 1);
 	DWORD length = sizeof(arr) / sizeof(arr[0]);
 	WriteOffsetMemory::Write(_T("Storm.dll"), 0x0002BC58, arr, length, data);
@@ -224,7 +229,7 @@ void CWar3ToolDlg::OnBnClickedAddKillCount()
 	//24
 	//138
 	//514
-	DWORD arr[5] = { 0x44, 0x158, 0x24, 0x138, 0x514 };
+	DWORD arr[] = { 0x44, 0x158, 0x24, 0x138, 0x514 };
 	DWORD data = GetDlgItemInt(IDC_EDIT2, NULL, 1);
 	DWORD length = sizeof(arr) / sizeof(arr[0]);
 	WriteOffsetMemory::Write(_T("Storm.dll"), 0x0002BC58, arr, length, data);
@@ -283,7 +288,7 @@ void CWar3ToolDlg::OnBnClickedXHeroAddMoney()
 	// 14
 	// 3c
 	// 78
-	DWORD arr[4] = { 0x4, 0x14, 0x3c, 0x78 };
+	DWORD arr[] = { 0x4, 0x14, 0x3c, 0x78 };
 	DWORD data = GetDlgItemInt(IDC_EDIT2, NULL, 1);
 	DWORD length = sizeof(arr) / sizeof(arr[0]);
 	WriteOffsetMemory::Write(_T("Game.dll"), 0x00BE40A4, arr, length, data);
@@ -302,9 +307,42 @@ void CWar3ToolDlg::OnBnClickedPauseLimitless()
 		//	0x0
 		//	0x1C
 		//	0x40
-		DWORD arr[5] = { 0x1C4, 0x0, 0x0, 0x1C, 0x40 };
+		DWORD arr[] = { 0x1C4, 0x0, 0x0, 0x1C, 0x40 };
 		DWORD data = 0;
 		DWORD length = sizeof(arr) / sizeof(arr[0]);
 		WriteOffsetMemory::Write(_T("Storm.dll"), 0x0002BC58, arr, length, data, TRUE);
 	}
+}
+
+
+void CWar3ToolDlg::OnBnClickedTunshi()
+{
+	// TODO: 吞噬999
+	UpdateData(TRUE);
+	if (m_tunshi)
+	{
+		//"Storm.dll" + 0x0002BC58
+		//	0xC0
+		//	0x0
+		//	0x64
+		//	0x110
+		//	0x30
+		// 0x10
+		//	0x384
+		DWORD arr[] = { 0xC0, 0x0, 0x64, 0x110, 0x30, 0x10, 0x384 };
+		DWORD data = 999;
+		DWORD length = sizeof(arr) / sizeof(arr[0]);
+		WriteOffsetMemory::Write(_T("Storm.dll"), 0x0002BC58, arr, length, data, TRUE);
+	}
+}
+
+
+void CWar3ToolDlg::OnEnChangeEdit1()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
 }
